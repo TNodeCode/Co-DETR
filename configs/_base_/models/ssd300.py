@@ -1,3 +1,5 @@
+import os
+
 # model settings
 input_size = 300
 model = dict(
@@ -21,7 +23,7 @@ model = dict(
     bbox_head=dict(
         type='SSDHead',
         in_channels=(512, 1024, 512, 256, 256, 256),
-        num_classes=80,
+        num_classes=80 if not os.getenv("NUM_CLASSES") else int(os.getenv("NUM_CLASSES")),
         anchor_generator=dict(
             type='SSDAnchorGenerator',
             scale_major=False,

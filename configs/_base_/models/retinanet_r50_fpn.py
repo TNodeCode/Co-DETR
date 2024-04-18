@@ -1,3 +1,5 @@
+import os
+
 # model settings
 model = dict(
     type='RetinaNet',
@@ -20,7 +22,7 @@ model = dict(
         num_outs=5),
     bbox_head=dict(
         type='RetinaHead',
-        num_classes=80,
+        num_classes=80 if not os.getenv("NUM_CLASSES") else int(os.getenv("NUM_CLASSES")),
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,

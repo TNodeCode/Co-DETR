@@ -1,6 +1,16 @@
+import os
+
 # dataset settings
 dataset_type = 'CocoDataset'
-data_root = 'data/coco/'
+data_root = 'data/spine/' if not os.getenv("DATASET_DIR") else os.getenv("DATASET_DIR") + "/"
+classes = ['spine']
+train_ann_file=data_root + 'annotations/instances_train2017.json' if not os.getenv("DATASET_TRAIN_ANNOTATION") else os.getenv("DATASET_TRAIN_ANNOTATION")
+train_img_prefix=data_root + 'train2017/' if not os.getenv("DATASET_TRAIN_IMAGES") else os.getenv("DATASET_TRAIN_IMAGES")
+val_ann_file=data_root + 'annotations/instances_val2017.json' if not os.getenv("DATASET_VAL_ANNOTATION") else os.getenv("DATASET_VAL_ANNOTATION")
+val_img_prefix=data_root + 'val2017/' if not os.getenv("DATASET_VAL_IMAGES") else os.getenv("DATASET_VAL_IMAGES")
+test_ann_file=data_root + 'annotations/instances_test2017.json' if not os.getenv("DATASET_TEST_ANNOTATION") else os.getenv("DATASET_TEST_ANNOTATION")
+test_img_prefix=data_root + 'test2017/' if not os.getenv("DATASET_TEST_IMAGES") else os.getenv("DATASET_TEST_IMAGES")
+
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 train_pipeline = [
@@ -33,17 +43,24 @@ data = dict(
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        ann_file=data_root + 'annotations/instances_train2017.json',
-        img_prefix=data_root + 'train2017/',
-        pipeline=train_pipeline),
+        ann_file=train_ann_file,
+        img_prefix=train_img_prefix,
+        pipeline=train_pipeline,
+        classes = classes,
+    ),
     val=dict(
         type=dataset_type,
-        ann_file=data_root + 'annotations/instances_val2017.json',
-        img_prefix=data_root + 'val2017/',
-        pipeline=test_pipeline),
+        ann_file=val_ann_file,
+        img_prefix=val_img_prefix,
+        pipeline=test_pipeline,
+        classes = classes,
+    ),
     test=dict(
         type=dataset_type,
-        ann_file=data_root + 'annotations/instances_val2017.json',
-        img_prefix=data_root + 'val2017/',
-        pipeline=test_pipeline))
+        ann_file=test_ann_file,
+        img_prefix=test_img_prefix,
+        pipeline=test_pipeline,
+        classes = classes,
+    )
+)
 evaluation = dict(interval=1, metric='bbox')

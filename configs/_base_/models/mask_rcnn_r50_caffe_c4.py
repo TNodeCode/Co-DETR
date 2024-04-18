@@ -1,3 +1,5 @@
+import os
+
 # model settings
 norm_cfg = dict(type='BN', requires_grad=False)
 model = dict(
@@ -53,7 +55,7 @@ model = dict(
             with_avg_pool=True,
             roi_feat_size=7,
             in_channels=2048,
-            num_classes=80,
+            num_classes=80 if not os.getenv("NUM_CLASSES") else int(os.getenv("NUM_CLASSES")),
             bbox_coder=dict(
                 type='DeltaXYWHBBoxCoder',
                 target_means=[0., 0., 0., 0.],
@@ -68,7 +70,7 @@ model = dict(
             num_convs=0,
             in_channels=2048,
             conv_out_channels=256,
-            num_classes=80,
+            num_classes=80 if not os.getenv("NUM_CLASSES") else int(os.getenv("NUM_CLASSES")),
             loss_mask=dict(
                 type='CrossEntropyLoss', use_mask=True, loss_weight=1.0))),
     # model training and testing settings

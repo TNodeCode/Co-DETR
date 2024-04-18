@@ -1,0 +1,7 @@
+services:
+  spine-co-detr:
+    image: tnodecode/spine-co-detr
+    ports:
+      - 8081:80
+    volumes:
+      - ./runs:/app/runs

@@ -19,15 +19,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
       - name: Login to Docker Hub
         run: |
-          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u $DOCKERHUB_USERNAME --password-stdin
 
-      - name: Build Docker image
-        run: docker build -t $DOCKERHUB_USERNAME/$IMAGE_NAME .
+      - name: Build and push Docker image for Linux x86
+        run: |
+          docker buildx create --use
+          docker buildx build --platform linux/amd64 -t $DOCKERHUB_USERNAME/$IMAGE_NAME:latest --push .
 
-      - name: Push Docker image to Docker Hub
-        run: docker push $DOCKERHUB_USERNAME/$IMAGE_NAME
+      - name: Build and push Docker image for ARM
+        run: |
+          docker buildx create --use
+          docker buildx build --platform linux/arm64 -t $DOCKERHUB_USERNAME/$IMAGE_NAME:latest --push .
 
       - name: Logout from Docker Hub
         run: docker logout

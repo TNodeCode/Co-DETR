@@ -1,17 +1,15 @@
 import os
 import time
 import torch
+import yaml
 from mmdet.apis import inference_detector, init_detector
 from fastapi import FastAPI, UploadFile, File
 
 app = FastAPI()
 
-available_models = {
-    "co_detr": {
-        "config": "./projects/configs/co_dino/co_dino_5scale_swin_large_16e_o365tococo_spine.py",
-        "weights": "./runs/co_dino_5scale_swin_large_16e_o365tococo_spine/epoch_25.pth",
-    },
-}
+# read available models
+with open('available_models.yml', 'r') as file:
+    available_models = yaml.safe_load(file)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 current_model_id = "cascade_rcnn_run1"

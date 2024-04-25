@@ -4,4 +4,5 @@ services:
     ports:
       - 8081:80
     volumes:
+      - ./available_models.yml:/app/available_models.yml
       - ./runs:/app/runs

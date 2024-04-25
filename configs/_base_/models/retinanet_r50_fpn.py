@@ -1,4 +1,4 @@
-import os
+import config
 
 # model settings
 model = dict(
@@ -22,7 +22,7 @@ model = dict(
         num_outs=5),
     bbox_head=dict(
         type='RetinaHead',
-        num_classes=80 if not os.getenv("NUM_CLASSES") else int(os.getenv("NUM_CLASSES")),
+        num_classes=len(config.get_classes()),
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,

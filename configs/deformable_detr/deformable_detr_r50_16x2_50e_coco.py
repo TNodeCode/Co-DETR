@@ -1,3 +1,5 @@
+import config
+
 _base_ = [
     '../_base_/datasets/coco_detection.py', '../_base_/default_runtime.py'
 ]
@@ -24,7 +26,7 @@ model = dict(
     bbox_head=dict(
         type='DeformableDETRHead',
         num_query=300,
-        num_classes=80,
+        num_classes=len(config.get_classes()),
         in_channels=2048,
         sync_cls_avg_factor=True,
         as_two_stage=False,
@@ -150,8 +152,8 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    samples_per_gpu=2,
-    workers_per_gpu=2,
+    samples_per_gpu=config.get_batch_size(2),
+    workers_per_gpu=config.get_workers_per_gpu(2),
     train=dict(filter_empty_gt=False, pipeline=train_pipeline),
     val=dict(pipeline=test_pipeline),
     test=dict(pipeline=test_pipeline))
@@ -169,7 +171,7 @@ optimizer = dict(
 optimizer_config = dict(grad_clip=dict(max_norm=0.1, norm_type=2))
 # learning policy
 lr_config = dict(policy='step', step=[40])
-runner = dict(type='EpochBasedRunner', max_epochs=50)
+runner = dict(type='EpochBasedRunner', max_epochs=config.get_number_of_epochs(50))
 
 # NOTE: `auto_scale_lr` is for automatically scaling LR,
 # USER SHOULD NOT CHANGE ITS VALUES.

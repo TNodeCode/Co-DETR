@@ -11,7 +11,7 @@ def get_classes(filename: str = None) -> list[str]:
         List of class names
     """
     if filename is None:
-        filename = os.getenv("CLASSES_FILE")
+        filename = "classes.txt" if not os.getenv("CLASSES_FILE") else os.getenv("CLASSES_FILE")
     with open(filename, "r") as f:
         return f.read().strip().split("\n")
 

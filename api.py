@@ -5,21 +5,27 @@ import yaml
 from mmdet.apis import inference_detector, init_detector
 from fastapi import FastAPI, UploadFile, File
 
-app = FastAPI()
 
-# read available models
-with open('available_models.yml', 'r') as file:
-    available_models = yaml.safe_load(file)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-current_model_id = "cascade_rcnn_run1"
-current_model = init_detector(
-    "./projects/configs/co_dino/co_dino_5scale_swin_large_16e_o365tococo_spine.py",
-    "./runs/co_dino_5scale_swin_large_16e_o365tococo_spine/epoch_25.pth",
-    device=device
-)
+print("DEVICE", device)
+
+available_models = {}
+current_model_id = ""
+current_model = None
+
+def get_available_models():
+    global available_models
+    #if (len(available_models.keys())) > 0:
+    #    return
+    # read available models
+    with open('available_models.yml', 'r') as file:
+        available_models = yaml.safe_load(file)
+        return available_models
 
 def update_model(model_id: str):
+    with open('available_models.yml', 'r') as file:
+        available_models = yaml.safe_load(file)
     global current_model_id
     global model
     if current_model_id != model_id:
@@ -35,10 +41,13 @@ def update_model(model_id: str):
         )
     return model
 
+app = FastAPI()
 
 
 @app.get("/available_models")
-async def get_available_models():
+def get_available_models():
+    with open('available_models.yml', 'r') as file:
+        available_models = yaml.safe_load(file)
     return list(available_models.keys())
 
 

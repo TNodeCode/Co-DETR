@@ -3,6 +3,7 @@ numpy
 pycocotools
 six
 terminaltables
+globox
 fastapi[all]
 click
 streamlit

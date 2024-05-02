@@ -1,6 +1,6 @@
 import os
 
-def get_classes(filename: str = None) -> list[str]:
+def get_classes(filename: str = None) -> "list[str]":
     """
     Get array of class names from text file
 

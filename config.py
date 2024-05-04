@@ -131,3 +131,24 @@ def get_workers_per_gpu(default: int = 4) -> int:
         Workers per GPU
     """
     return default if not os.getenv("WORKERS") else int(os.getenv("WORKERS"))
+
+
+def get_augmentations():
+    """
+    List of image augmentations that should be applied during training of the models
+
+    Return:
+        List oof image augmentations
+    """
+    return [
+        dict(type='Corrupt', corruption='brightness', severity=3),
+        dict(type='Corrupt', corruption='contrast', severity=1),
+        dict(type='Corrupt', corruption='elastic_transform', severity=1),
+        dict(type='Corrupt', corruption='gaussian_noise', severity=2),
+        dict(type='Corrupt', corruption='gaussian_blur', severity=1),
+        dict(type='Corrupt', corruption='pixelate', severity=1),
+        dict(type='RandomFlip', flip_ratio=0.5, direction="horizontal"),
+        dict(type='RandomFlip', flip_ratio=0.5, direction="vertical"),
+        dict(type='RandomFlip', flip_ratio=0.5, direction="diagonal"),
+        dict(type='RandomAffine', max_rotate_degree=10.0, max_translate_ratio=0.1, scaling_ratio_range=(0.5, 1.5), max_shear_degree=2.0),
+    ]

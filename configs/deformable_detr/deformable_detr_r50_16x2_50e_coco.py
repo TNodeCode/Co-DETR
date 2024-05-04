@@ -90,7 +90,7 @@ img_norm_cfg = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='RandomFlip', flip_ratio=0.5),
+    *config.get_augmentations(),
     dict(
         type='AutoAugment',
         policies=[

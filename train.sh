@@ -7,10 +7,11 @@ export IMAGES_TRAIN=$DATASET_DIR/train2017
 export IMAGES_VAL=$DATASET_DIR/val2017
 export IMAGES_TEST=$DATASET_DIR/test2017
 export CLASSES="classes.txt"
-export BATCH_SIZE=4
+export WORKERS=4
+export BATCH_SIZE=16
 export MODEL_TYPE=faster_rcnn
 export MODEL_NAME=faster_rcnn_r50_fpn_1x_coco
-export EPOCHS=12
+export EPOCHS=25
 export WORK_DIR=runs/$MODEL_TYPE/$MODEL_NAME
 
 python cli.py train \

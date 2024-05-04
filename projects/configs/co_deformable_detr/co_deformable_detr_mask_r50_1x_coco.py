@@ -129,7 +129,10 @@ img_norm_cfg = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True, with_mask=True),
-    dict(type='RandomFlip', flip_ratio=0.5),
+    dict(type='RandomFlip', flip_ratio=0.5, direction="horizontal"),
+    dict(type='RandomFlip', flip_ratio=0.5, direction="vertical"),
+    dict(type='RandomFlip', flip_ratio=0.5, direction="diagonal"),
+    dict(type='RandomAffine', max_rotate_degree=10.0, max_translate_ratio=0.1, scaling_ratio_range=(0.5, 1.5), max_shear_degree=2.0),
     dict(
         type='AutoAugment',
         policies=[

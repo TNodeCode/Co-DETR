@@ -1,3 +1,44 @@
+# Setup
+
+Create Conda environment
+
+```bash
+$ conda create -n codetr python==3.11 pip
+$ conda activate codetr
+$ python -m pip install --upgrade pip
+```
+
+Clone the repository
+
+```bash
+$ git clone https://github.com/tnodecode/Co-DETR
+$ cd Co-DETR
+```
+
+Install PyTorch
+
+```bash
+$ python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+```
+
+Install MMCV
+
+```bash
+$ cd mmcv
+$ FORCE_CUDA=1 MMCV_WITH_OPS=1 pip install -e . -v
+```
+
+Install dependencies
+
+```bash
+$ python -m pip install cmake
+$ python -m pip install -r requirements/build.txt
+$ python -m pip install -r requirements/optional.txt
+$ python -m pip install -r requirements/runtime.txt
+$ python -m pip install -i https://test.pypi.org/simple/ tnc-process
+```
+
+
 # DETRs with Collaborative Hybrid Assignments Training
 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/detrs-with-collaborative-hybrid-assignments/object-detection-on-coco-minival)](https://paperswithcode.com/sota/object-detection-on-coco-minival?p=detrs-with-collaborative-hybrid-assignments)

@@ -7,3 +7,8 @@ globox
 fastapi[all]
 click
 streamlit
+reactivex
+paramiko
+fairscale
+timm
+scikit-image==0.18.3

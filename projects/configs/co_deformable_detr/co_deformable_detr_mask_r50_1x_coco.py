@@ -1,5 +1,3 @@
-import config
-
 _base_ = [
     'co_deformable_detr_r50_1x_coco.py'
 ]
@@ -21,7 +19,7 @@ model = dict(
             in_channels=256,
             fc_out_channels=1024,
             roi_feat_size=7,
-            num_classes=len(config.get_classes()),
+            num_classes=80,
             bbox_coder=dict(
                 type='DeltaXYWHBBoxCoder',
                 target_means=[0., 0., 0., 0.],
@@ -42,7 +40,7 @@ model = dict(
             num_convs=4,
             in_channels=256,
             conv_out_channels=256,
-            num_classes=len(config.get_classes()),
+            num_classes=80,
             loss_mask=dict(
                 type='CrossEntropyLoss', use_mask=True, loss_weight=1.0*num_dec_layer*lambda_2)),
             )],
@@ -129,7 +127,7 @@ img_norm_cfg = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True, with_mask=True),
-    *config.get_augmentations(),
+    dict(type='RandomFlip', flip_ratio=0.5),
     dict(
         type='AutoAugment',
         policies=[

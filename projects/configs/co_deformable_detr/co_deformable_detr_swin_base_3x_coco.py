@@ -1,5 +1,3 @@
-import config
-
 _base_ = [
     'co_deformable_detr_r50_1x_coco.py'
 ]
@@ -24,4 +22,4 @@ model = dict(
 # optimizer
 optimizer = dict(weight_decay=0.05)
 lr_config = dict(policy='step', step=[30])
-runner = dict(type='EpochBasedRunner', max_epochs=config.get_number_of_epochs(36))
+runner = dict(type='EpochBasedRunner', max_epochs=36)

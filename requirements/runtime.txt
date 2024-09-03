@@ -3,7 +3,9 @@ numpy
 pycocotools
 six
 terminaltables
-globox
-fastapi[all]
-click
-streamlit
+fairscale
+scipy
+yapf
+timm
+fvcore
+tensorboard

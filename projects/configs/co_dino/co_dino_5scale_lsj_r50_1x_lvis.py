@@ -1,5 +1,3 @@
-import config
-
 _base_ = [
     'co_dino_5scale_r50_1x_lvis.py'
 ]
@@ -26,7 +24,7 @@ load_pipeline = [
         recompute_bbox=True,
         allow_negative_crop=True),
     dict(type='FilterAnnotations', min_gt_bbox_wh=(1e-2, 1e-2)),
-    *config.get_augmentations(),
+    dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='Pad', size=image_size, pad_val=dict(img=(114, 114, 114))),
 ]
 train_pipeline = [

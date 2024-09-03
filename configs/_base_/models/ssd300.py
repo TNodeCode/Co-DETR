@@ -1,5 +1,3 @@
-import config
-
 # model settings
 input_size = 300
 model = dict(
@@ -23,7 +21,7 @@ model = dict(
     bbox_head=dict(
         type='SSDHead',
         in_channels=(512, 1024, 512, 256, 256, 256),
-        num_classes=len(config.get_classes()),
+        num_classes=80,
         anchor_generator=dict(
             type='SSDAnchorGenerator',
             scale_major=False,

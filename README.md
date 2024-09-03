@@ -6,12 +6,13 @@
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/detrs-with-collaborative-hybrid-assignments/object-detection-on-lvis-v1-0-val)](https://paperswithcode.com/sota/object-detection-on-lvis-v1-0-val?p=detrs-with-collaborative-hybrid-assignments)
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/detrs-with-collaborative-hybrid-assignments/instance-segmentation-on-lvis-v1-0-val)](https://paperswithcode.com/sota/instance-segmentation-on-lvis-v1-0-val?p=detrs-with-collaborative-hybrid-assignments)
 
-This repo is the official implementation of ["DETRs with Collaborative Hybrid Assignments Training"](https://arxiv.org/pdf/2211.12860.pdf) by Zhuofan Zong, Guanglu Song, and Yu Liu.
 
+[[📖 Paper](https://arxiv.org/pdf/2211.12860.pdf)] [[🤗 Huggingface Model](https://huggingface.co/zongzhuofan)]
 
 ## News
 
-* ***[10/19/2023]*** Our SOTA model Co-DETR w/ ViT-L is released now. Please refer to [this page](https://github.com/Sense-X/Co-DETR/blob/main/docs/en/sota_release.md) for more details.
+* ***[04/22/2024]*** We release a new MLLM framework [MoVA](https://github.com/TempleX98/MoVA), which adopts Co-DETR as the vision and achieves state-of-the-art performance on multimodal benchmarks.
+* ***[10/19/2023]*** Our SOTA model Co-DETR w/ ViT-L is released now. Please refer to [our huggingface page](https://huggingface.co/zongzhuofan) for more details.
 * ***[09/10/2023]*** We release LVIS inference configs and a stronger LVIS detector that achieves **64.5 box AP**.
 * ***[08/21/2023]*** Our O365 pre-trained Co-DETR with Swin-L achieves **64.8 AP** on COCO test-dev. The config and weights are released.
 * ***[07/20/2023]*** Code for Co-DINO is released: **55.4 AP** with ResNet-50 and **60.7 AP** with Swin-L.
@@ -19,6 +20,7 @@ This repo is the official implementation of ["DETRs with Collaborative Hybrid As
 * ***[07/12/2023]*** We finetune Co-DETR on LVIS and achieve the best results **without TTA**: **72.0 box AP** and **59.7 mask AP** on LVIS minival, **68.0 box AP** and **56.0 mask AP** on LVIS val. For instance segmentation, we report the performance of the auxiliary mask branch.
 * ***[07/03/2023]*** Co-DETR with [ViT-L](https://github.com/baaivision/EVA/tree/master/EVA-02) **(304M parameters)** sets a new record of <strike>65.6</strike> **66.0 AP** on COCO test-dev, surpassing the previous best model [InternImage-G](https://github.com/OpenGVLab/InternImage) **(~3000M parameters)**. It is the **first model to exceed 66.0 AP on COCO test-dev**.
 * ***[07/03/2023]*** Code for Co-Deformable-DETR is released.
+* ***[04/05/2023]*** [HoP](https://github.com/Sense-X/HoP) leverages Co-DETR as the backbone and achieves new SOTA performance on [nuScenes 3D detection leaderboard](https://www.nuscenes.org/object-detection?externalData=all&mapData=all&modalities=Camera).
 * ***[11/19/2022]*** We achieved 64.4 AP on COCO minival and 64.5 AP on COCO test-dev with only ImageNet-1K as pre-training data. Codes will be available soon.
    
 
@@ -37,12 +39,14 @@ In this paper, we present a novel collaborative hybrid assignments training sche
 
 ### Objects365 pre-trained Co-DETR
 
-Note: the inconsistent pre-training and fine-tuning augmentation settings (DETR and LSJ aug) for the Swin-L model degenerate the performance on LVIS.
-| Model  | Backbone | Epochs | Aug | Dataset | box AP (val) | Config | Download |
-| ------ | -------- | ------ | --- | ------- | ------------ | ------ | ----- |
-| Co-DINO | Swin-L | 16 | DETR | COCO | 64.1 | [config](https://github.com/Sense-X/Co-DETR/blob/main/projects/configs/co_dino/co_dino_5scale_swin_large_16e_o365tococo.py) | [model](https://drive.google.com/drive/folders/1nAXOkzqrEgz-YnXxIEs4d5j9li_kmrnv?usp=sharing) |
-| Co-DINO | Swin-L | 16 | LSJ | LVIS | 64.5 | [config (test)](https://github.com/Sense-X/Co-DETR/blob/main/projects/configs/co_dino/co_dino_5scale_lsj_swin_large_16e_o365tolvis.py) | [model](https://drive.google.com/drive/folders/1nAXOkzqrEgz-YnXxIEs4d5j9li_kmrnv?usp=sharing) |
-| Co-DINO | ViT-L | 16 | LSJ | LVIS | 68.0 | [config (test)](https://github.com/Sense-X/Co-DETR/blob/main/docs/en/sota_release.md) | [model](https://github.com/Sense-X/Co-DETR/blob/main/docs/en/sota_release.md) |
+| Model  | Backbone | Aug | Dataset | box AP (val) | mask AP (val) | box AP (test) | mask AP (test) | Config | Download |
+| ------ | -------- | --- | ------- | ------------ | ------------- | ------ | ------------- | ------ | ----- |
+| Co-DINO | Swin-L | DETR | COCO | 64.1 | - | - | - | [config](https://github.com/Sense-X/Co-DETR/blob/main/projects/configs/co_dino/co_dino_5scale_swin_large_16e_o365tococo.py) | [model](https://drive.google.com/drive/folders/1nAXOkzqrEgz-YnXxIEs4d5j9li_kmrnv?usp=sharing) |
+| Co-DINO | ViT-L | DETR | COCO | 65.9 | - | 66.0 | - | [config](https://github.com/Sense-X/Co-DETR/blob/main/projects/configs/co_dino_vit/co_dino_5scale_vit_large_coco.py) | [model](https://huggingface.co/zongzhuofan) |
+| Co-DINO | Swin-L | LSJ | LVIS | 64.5 | - | - | - | [config (test)](https://github.com/Sense-X/Co-DETR/blob/main/projects/configs/co_dino/co_dino_5scale_lsj_swin_large_16e_o365tolvis.py) | [model](https://drive.google.com/drive/folders/1nAXOkzqrEgz-YnXxIEs4d5j9li_kmrnv?usp=sharing) |
+| Co-DINO | ViT-L | LSJ | LVIS | 68.0 | - | - | - | [config (test)](https://github.com/Sense-X/Co-DETR/blob/main/projects/configs/co_dino_vit/co_dino_5scale_lsj_vit_large_lvis.py) | [model](https://huggingface.co/zongzhuofan) |
+| Co-DINO-Inst | ViT-L | LSJ | LVIS | 67.3 | 60.7 | - | - | [config (test)](https://github.com/Sense-X/Co-DETR/blob/main/projects/configs/co_dino_vit/co_dino_5scale_lsj_vit_large_lvis_instance.py) | [model](https://huggingface.co/zongzhuofan) |
+
 
 ### Co-DETR with ResNet-50
 
@@ -133,13 +137,12 @@ sh tools/slurm_test.sh partition job_name projects/configs/co_deformable_detr/co
 If you find this repository useful, please use the following BibTeX entry for citation.
 
 ```latex
-@misc{codetr2022,
-      title={DETRs with Collaborative Hybrid Assignments Training},
-      author={Zhuofan Zong and Guanglu Song and Yu Liu},
-      year={2022},
-      eprint={2211.12860},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@inproceedings{zong2023detrs,
+  title={Detrs with collaborative hybrid assignments training},
+  author={Zong, Zhuofan and Song, Guanglu and Liu, Yu},
+  booktitle={Proceedings of the IEEE/CVF international conference on computer vision},
+  pages={6748--6758},
+  year={2023}
 }
 ```
 

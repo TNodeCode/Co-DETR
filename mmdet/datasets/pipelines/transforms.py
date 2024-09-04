@@ -1311,13 +1311,10 @@ class Corrupt:
         if 'img_fields' in results:
             assert results['img_fields'] == ['img'], \
                 'Only single img_fields is allowed'
-        # Apply corruption with a chance of 0.5
-        if random.random() > 0.25:
-            results['img'] = corrupt(
-                results['img'].astype(np.uint8),
-                corruption_name=self.corruption,
-                severity=np.random.randint(1, int(self.severity) + 1) # randomly select severity
-            )
+        results['img'] = corrupt(
+            results['img'].astype(np.uint8),
+            corruption_name=self.corruption,
+            severity=self.severity)
         return results
 
     def __repr__(self):

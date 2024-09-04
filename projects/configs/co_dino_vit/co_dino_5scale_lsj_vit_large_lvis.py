@@ -2,30 +2,45 @@ _base_ = [
     '../_base_/datasets/lvis_v1_instance.py',
     '../_base_/default_runtime.py'
 ]
-# model settings
+checkpoint_config = dict(interval=1)
+resume_from = None
+load_from = None
+pretrained = None
+window_block_indexes = (
+    list(range(0, 2)) + list(range(3, 5)) + list(range(6, 8)) + list(range(9, 11)) + list(range(12, 14)) + list(range(15, 17)) + list(range(18, 20)) + list(range(21, 23))
+)
+residual_block_indexes = []
+
 num_dec_layer = 6
 lambda_2 = 2.0
 
 model = dict(
     type='CoDETR',
+    with_attn_mask=False,
     backbone=dict(
-        type='ResNet',
-        depth=50,
-        num_stages=4,
-        out_indices=(0, 1, 2, 3),
-        frozen_stages=1,
-        norm_cfg=dict(type='BN', requires_grad=False),
-        norm_eval=True,
-        style='pytorch',
-        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50')),
-    neck=dict(
-        type='ChannelMapper',
-        in_channels=[256, 512, 1024, 2048],
-        kernel_size=1,
+        type='ViT',
+        img_size=1536,
+        pretrain_img_size=512,
+        patch_size=16,
+        embed_dim=1024,
+        depth=24,
+        num_heads=16,
+        mlp_ratio=4*2/3,
+        drop_path_rate=0.3,
+        window_size=16,
+        window_block_indexes=window_block_indexes,
+        residual_block_indexes=residual_block_indexes,
+        qkv_bias=True,
+        use_act_checkpoint=True,
+        use_lsj=True,
+        init_cfg=None),
+    neck=dict(        
+        type='SFP',
+        in_channels=[1024],        
         out_channels=256,
-        act_cfg=None,
-        norm_cfg=dict(type='GN', num_groups=32),
-        num_outs=5),
+        num_outs=5,
+        use_p2=True,
+        use_act_checkpoint=False),
     rpn_head=dict(
         type='RPNHead',
         in_channels=256,
@@ -55,8 +70,8 @@ model = dict(
         mixed_selection=True,
         dn_cfg=dict(
             type='CdnQueryGenerator',
-            noise_scale=dict(label=0.5, box=1.0),  # 0.5, 0.4 for DN-DETR
-            group_cfg=dict(dynamic=True, num_groups=None, num_dn_queries=100)),
+            noise_scale=dict(label=0.5, box=0.4),  # 0.5, 0.4 for DN-DETR
+            group_cfg=dict(dynamic=True, num_groups=None, num_dn_queries=300)),
         transformer=dict(
             type='CoDinoTransformer',
             with_pos_coord=True,
@@ -66,7 +81,7 @@ model = dict(
             encoder=dict(
                 type='DetrTransformerEncoder',
                 num_layers=6,
-                with_cp=4, # number of layers that use checkpoint
+                with_cp=6, # number of layers that use checkpoint
                 transformerlayers=dict(
                     type='BaseTransformerLayer',
                     attn_cfgs=dict(
@@ -210,119 +225,100 @@ model = dict(
             debug=False),],
     test_cfg=[
         dict(
-            max_per_img=300,
-            nms=dict(type='soft_nms', iou_threshold=0.8)
-        ),
+            max_per_img=1000,
+            nms=dict(type='soft_nms', iou_threshold=0.8)),
         dict(
             rpn=dict(
-                nms_pre=1000,
-                max_per_img=1000,
-                nms=dict(type='nms', iou_threshold=0.7),
+                nms_pre=8000,
+                max_per_img=2000,
+                nms=dict(type='nms', iou_threshold=0.9),
                 min_bbox_size=0),
             rcnn=dict(
                 score_thr=0.0,
-                nms=dict(type='nms', iou_threshold=0.5),
-                max_per_img=100)),
+                mask_thr_binary=0.5,
+                nms=dict(type='soft_nms', iou_threshold=0.5),
+                max_per_img=1000)),
         dict(
             nms_pre=1000,
             min_bbox_size=0,
             score_thr=0.0,
-            nms=dict(type='nms', iou_threshold=0.6),
+            nms=dict(type='soft_nms', iou_threshold=0.6),
             max_per_img=100),
         # soft-nms is also supported for rcnn testing
         # e.g., nms=dict(type='soft_nms', iou_threshold=0.5, min_score=0.05)
     ])
-#find_unused_parameters = True
-#fp16 = dict(loss_scale=dict(init_scale=512))
+
+
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 # train_pipeline, NOTE the img_scale and the Pad's size_divisor is different
 # from the default setting in mmdet.
-train_pipeline = [
+image_size = (1536, 1536)
+load_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='RandomFlip', flip_ratio=0.5),
+    dict(type='LoadAnnotations', with_bbox=True, with_mask=True),
     dict(
-        type='AutoAugment',
-        policies=[
-            [
-                dict(
-                    type='Resize',
-                    img_scale=[(480, 1333), (512, 1333), (544, 1333),
-                               (576, 1333), (608, 1333), (640, 1333),
-                               (672, 1333), (704, 1333), (736, 1333),
-                               (768, 1333), (800, 1333)],
-                    multiscale_mode='value',
-                    keep_ratio=True)
-            ],
-            [
-                dict(
-                    type='Resize',
-                    # The radio of all image in train dataset < 7
-                    # follow the original impl
-                    img_scale=[(400, 4200), (500, 4200), (600, 4200)],
-                    multiscale_mode='value',
-                    keep_ratio=True),
-                dict(
-                    type='RandomCrop',
-                    crop_type='absolute_range',
-                    crop_size=(384, 600),
-                    allow_negative_crop=True),
-                dict(
-                    type='Resize',
-                    img_scale=[(480, 1333), (512, 1333), (544, 1333),
-                               (576, 1333), (608, 1333), (640, 1333),
-                               (672, 1333), (704, 1333), (736, 1333),
-                               (768, 1333), (800, 1333)],
-                    multiscale_mode='value',
-                    override=True,
-                    keep_ratio=True)
-            ]
-        ]),
-    dict(type='Normalize', **img_norm_cfg),
-    dict(type='Pad', size_divisor=1),
-    dict(type='DefaultFormatBundle'),
-    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+        type='Resize',
+        img_scale=image_size,
+        ratio_range=(0.1, 2.0),
+        multiscale_mode='range',
+        keep_ratio=True),
+    dict(
+        type='RandomCrop',
+        crop_type='absolute_range',
+        crop_size=image_size,
+        recompute_bbox=True,
+        allow_negative_crop=True),
+    dict(type='FilterAnnotations', min_gt_bbox_wh=(1e-2, 1e-2)),
+    dict(type='RandomFlip', flip_ratio=0.5),
+    dict(type='Pad', size=image_size, pad_val=dict(img=(114, 114, 114))),
 ]
-# test_pipeline, NOTE the Pad's size_divisor is different from the default
-# setting (size_divisor=32). While there is little effect on the performance
-# whether we use the default setting or use size_divisor=1.
+train_pipeline = [
+    dict(type='CopyPaste', max_num_pasted=100),
+    dict(type='Normalize', **img_norm_cfg),
+    dict(type='DefaultFormatBundle'),
+    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels', 'gt_masks']),
+]
 test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1333, 800),
+        img_scale=image_size,
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
+            dict(type='Pad', size=image_size, pad_val=dict(img=(114, 114, 114))),
             dict(type='Normalize', **img_norm_cfg),
-            dict(type='Pad', size_divisor=1),
             dict(type='ImageToTensor', keys=['img']),
             dict(type='Collect', keys=['img'])
         ])
 ]
 
 data = dict(
-    samples_per_gpu=2,
-    workers_per_gpu=2,
+    samples_per_gpu=1,
+    workers_per_gpu=1,
     train=dict(filter_empty_gt=False, pipeline=train_pipeline),
     val=dict(pipeline=test_pipeline),
     test=dict(pipeline=test_pipeline))
+
+evaluation = dict(metric='bbox')
+
+# learning policy
+lr_config = dict(
+    policy='step',
+    warmup='linear',
+    warmup_iters=500,
+    warmup_ratio=0.01,
+    step=[9, 15])
+runner = dict(type='EpochBasedRunner', max_epochs=16)
+
 # optimizer
+# We use layer-wise learning rate decay, but it has not been implemented.
 optimizer = dict(
     type='AdamW',
-    lr=2e-4,
-    weight_decay=0.0001,
+    lr=5e-5,
+    weight_decay=0.05,
     # custom_keys of sampling_offsets and reference_points in DeformDETR
     paramwise_cfg=dict(custom_keys={'backbone': dict(lr_mult=0.1)}))
 
-optimizer_config = dict(grad_clip=dict(max_norm=0.1, norm_type=2))
-# learning policy
-lr_config = dict(policy='step', step=[11])
-runner = dict(type='EpochBasedRunner', max_epochs=12)
-
-# NOTE: `auto_scale_lr` is for automatically scaling LR,
-# USER SHOULD NOT CHANGE ITS VALUES.
-# base_batch_size = (8 GPUs) x (2 samples per GPU)
-auto_scale_lr = dict(base_batch_size=16)

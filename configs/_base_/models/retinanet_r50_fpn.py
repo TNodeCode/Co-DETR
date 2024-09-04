@@ -1,5 +1,3 @@
-import config
-
 # model settings
 model = dict(
     type='RetinaNet',
@@ -22,7 +20,7 @@ model = dict(
         num_outs=5),
     bbox_head=dict(
         type='RetinaHead',
-        num_classes=len(config.get_classes()),
+        num_classes=80,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,

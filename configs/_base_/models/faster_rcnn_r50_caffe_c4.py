@@ -1,5 +1,3 @@
-import config
-
 # model settings
 norm_cfg = dict(type='BN', requires_grad=False)
 model = dict(
@@ -58,7 +56,7 @@ model = dict(
             with_avg_pool=True,
             roi_feat_size=7,
             in_channels=2048,
-            num_classes=len(config.get_classes()),
+            num_classes=80,
             bbox_coder=dict(
                 type='DeltaXYWHBBoxCoder',
                 target_means=[0., 0., 0., 0.],
